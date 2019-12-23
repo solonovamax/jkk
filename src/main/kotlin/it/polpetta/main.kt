@@ -22,14 +22,19 @@ package it.polpetta
 import com.github.ajalt.clikt.core.subcommands
 import it.polpetta.cli.Login
 import it.polpetta.cli.Root
+import it.polpetta.cli.Status
 import it.polpetta.cli.Version
-import it.polpetta.utils.printErrln
 import it.polpetta.utils.debugThrow
+import it.polpetta.utils.printErrln
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     try {
-        Root().subcommands(Version(), Login()).main(args)
+        Root().subcommands(
+            Version(),
+            Login(),
+            Status()
+        ).main(args)
     }
     catch (e: Exception) {
         e.message?.let { printErrln("Error: $it") }

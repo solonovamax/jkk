@@ -23,31 +23,41 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.toml.toToml
 import it.polpetta.config.Auth
+import it.polpetta.config.Resources
 import it.polpetta.utils.Jenkins
 import it.polpetta.utils.printErrln
+import it.polpetta.utils.pwd
+import java.nio.file.Path
 import kotlin.system.exitProcess
 
 class Login : CliktCommand(help = "Login to the remote Jenkins instance") {
-    private val url: String by argument("server url", "Jenkins server URL")
+    private val url: String by argument("server_url", "Jenkins server URL")
     private val username: String? by option("-u", "--username", help = "Jenkins username").prompt("Username")
     private val password: String? by option("-p", "--password", help = "Jenkins password/auth token").prompt("Password")
 
     override fun run() {
         val jenkins = Jenkins.with(url, username, password)
-        val authConfig = Config()
+        val authConfig = Config { addSpec(Auth) }
         val jenkinsVersion = jenkins.api().systemApi().systemInfo().jenkinsVersion()
 
         if (jenkinsVersion.split(".")[0].toShort() > 0) {
             println("Login succeed, found Jenkins $jenkinsVersion")
-            authConfig.addSpec(Auth)
 
             authConfig[Auth.username] = username.orEmpty()
             authConfig[Auth.password] = password.orEmpty()
             authConfig[Auth.url] = url
 
-            // TODO write down the credentials in the current pwd(). Optional -> add the file to the gitignore if git
-            //  repository is found
+            val saveFile = Path.of(pwd(), Resources.JENKINS_AUTH_FILENAME).toFile()
+            if (saveFile.exists()) {
+                saveFile.delete()
+            } else {
+                saveFile.createNewFile()
+            }
+            authConfig.toToml.toFile(saveFile)
+            // TODO we should detect the current VCS used by the user and add the current credential files in the
+            //  ignored files, in order to avoid accidentals commits
         } else {
             printErrln("Login failed")
             exitProcess(1)

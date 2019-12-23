@@ -19,6 +19,7 @@
 package it.polpetta.config
 
 object Resources {
+    const val JENKINS_AUTH_FILENAME: String = ".jkkcred"
     object TOML {
         object Auth {
             const val USERNAME : String = "username"

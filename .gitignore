@@ -27,3 +27,4 @@ gradle/
 .idea/
 build/
 jenkins_home/
+.jkkcred

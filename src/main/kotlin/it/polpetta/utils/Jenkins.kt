@@ -20,19 +20,31 @@ package it.polpetta.utils
 
 import com.cdancy.jenkins.rest.JenkinsClient
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.toml
 import it.polpetta.config.Auth
+import it.polpetta.config.Resources
 import java.io.FileNotFoundException
+import java.nio.file.Path
 
 object Jenkins {
-    private val config: Config? = try {
-        Config().from.properties.file(pwd())
-    } catch (e: FileNotFoundException) {
-        null
-    }
     val session: JenkinsClient?
 
     init {
+        var config: Config? = null
+        if (Path.of(pwd(), Resources.JENKINS_AUTH_FILENAME).toFile().exists()) {
+            try {
+                config = Config { addSpec(Auth) }.from.toml.file(
+                    Path.of(
+                        pwd(),
+                        Resources.JENKINS_AUTH_FILENAME
+                    ).toFile().path
+                )
+            } catch (e: FileNotFoundException) {
+            }
+        }
+
         session = if (config != null) {
+            config.validateRequired()
             JenkinsClient
                 .builder()
                 .credentials("${config[Auth.username]}:${config[Auth.password]}")
