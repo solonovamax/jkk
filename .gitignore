@@ -28,3 +28,4 @@ gradle/
 build/
 jenkins_home/
 .jkkcred
+*.iml

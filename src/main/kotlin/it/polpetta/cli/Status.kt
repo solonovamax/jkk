@@ -32,25 +32,22 @@ class Status : CliktCommand(help = "Show the working tree status") {
         if (jenkins != null) {
             val jobInfo = jenkins.api().jobsApi().jobInfo(null, jobName)
             val lastBuild = jobInfo.lastBuild()
-            val prettyIsBuilding = if (lastBuild.building()) {
+            val prettyIsBuilding = if(lastBuild.building()) {
                 "building"
             } else {
                 "completed"
             }
-            val description = if (lastBuild.description() == null) {
-                "no available description"
-            } else {
-                lastBuild.description()
-            }
+            val description = lastBuild.description() ?: "no description available"
+            val title = lastBuild.displayName() ?: "no title available"
             println(
                 """
-                On job ${jobInfo.displayName()}
-                Build number ${lastBuild.number()}
-                Build url ${lastBuild.url()}
+                Latest build on job ${jobInfo.displayName()}
+                Build number: ${lastBuild.number()}
+                Build url: ${lastBuild.url()}
                 Status: $prettyIsBuilding
                 Duration: ${lastBuild.duration()}
 
-                Title: ${lastBuild.displayName()}
+                Title: $title
                 Description:
                 $description
             """.trimIndent()
