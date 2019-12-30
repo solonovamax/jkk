@@ -78,4 +78,16 @@ object Jenkins {
 
         return jenkinsBuilder.build()
     }
+
+    /**
+     * Returns the current Jenkins session if present or calls a lambda that defines how to behave
+     * otherwise
+     * @param onNullSession lambda that defines how to behave when session is null
+     * @return the current Jenkins Client or the result of the argument lambda if the latter is null
+     */
+    //Not totally convinced this is a good idea but it could help to improve readability
+    inline fun retrieveSession(onNullSession: () -> JenkinsClient? = { null }) : JenkinsClient?
+    {
+        return session ?: onNullSession()
+    }
 }

@@ -19,22 +19,32 @@
 package it.polpetta.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import it.polpetta.config.Resources
+import it.polpetta.config.VersionInfo
 import it.polpetta.utils.Jenkins
+import it.polpetta.utils.printErrln
+import kotlin.system.exitProcess
 
 class Version: CliktCommand(help = "Prints information about the cli and the server, if logged in") {
     override fun run() {
-        if (Jenkins.session != null)
+        val jenkinsSession = Jenkins.retrieveSession()
+
+        if (jenkinsSession != null)
         {
             println("""
             Local:
-            Version: 0.1
+            Version: ${VersionInfo.NUMBER}
+            Version name: ${VersionInfo.NAME}
             
             Remote:
-            Version: ${Jenkins.session.api().systemApi().systemInfo().jenkinsVersion()}
-            Endpoint: ${Jenkins.session.endPoint()}
+            Version: ${jenkinsSession.api().systemApi().systemInfo().jenkinsVersion()}
+            Endpoint: ${jenkinsSession.endPoint()}
             """.trimIndent())
         } else {
-            println("Version 0.1")
+            println("""
+            Version: ${VersionInfo.NUMBER}
+            Version name: ${VersionInfo.NAME}
+            """.trimIndent())
         }
     }
 }

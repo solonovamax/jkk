@@ -27,34 +27,32 @@ import kotlin.system.exitProcess
 class Status : CliktCommand(help = "Show the working tree status") {
     private val jobName: String by argument("job_name", "Name of the Job to display")
     override fun run() {
-        val jenkins = Jenkins.session
-
-        if (jenkins != null) {
-            val jobInfo = jenkins.api().jobsApi().jobInfo(null, jobName)
-            val lastBuild = jobInfo.lastBuild()
-            val prettyIsBuilding = if(lastBuild.building()) {
-                "building"
-            } else {
-                "completed"
-            }
-            val description = lastBuild.description() ?: "no description available"
-            val title = lastBuild.displayName() ?: "no title available"
-            println(
-                """
-                Latest build on job ${jobInfo.displayName()}
-                Build number: ${lastBuild.number()}
-                Build url: ${lastBuild.url()}
-                Status: $prettyIsBuilding
-                Duration: ${lastBuild.duration()}
-
-                Title: $title
-                Description:
-                $description
-            """.trimIndent()
-            )
-        } else {
-            printErrln("No Jenkins instance to connect to")
+        val jenkinsSession = Jenkins.retrieveSession {
+            printErrln("ABORT: No Jenkins instance to connect to")
             exitProcess(1)
+        }!!
+
+        val jobInfo = jenkinsSession.api().jobsApi().jobInfo(null, jobName)
+        val lastBuild = jobInfo.lastBuild()
+        val prettyIsBuilding = if(lastBuild.building()) {
+            "building"
+        } else {
+            "completed"
         }
+        val description = lastBuild.description() ?: "no description available"
+        val title = lastBuild.displayName() ?: "no title available"
+        println(
+            """
+            Latest build on job ${jobInfo.displayName()}
+            Build number: ${lastBuild.number()}
+            Build url: ${lastBuild.url()}
+            Status: $prettyIsBuilding
+            Duration: ${lastBuild.duration()}
+
+            Title: $title
+            Description:
+            $description
+        """.trimIndent()
+        )
     }
 }
