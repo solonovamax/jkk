@@ -1,5 +1,6 @@
 # Jkk
 
+[![Build Status](https://travis-ci.org/Polpetta/jkk.svg?branch=master)](https://travis-ci.org/Polpetta/jkk)
 
 The aim of this project is to create a git-like tool to integrate in the development workflow of an everyday developer.
 
