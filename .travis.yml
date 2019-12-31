@@ -1,12 +1,8 @@
 language: java
 
 jdk:
-  - openjdk8
-  - oraclejdk8
   - openjdk11
   - oraclejdk11
-  - openjdk13
-  - oraclejdk13
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
