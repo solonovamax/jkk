@@ -33,12 +33,13 @@ application {
     applicationDefaultJvmArgs = ['--add-opens=java.base/java.lang=ALL-UNNAMED']
 }
 
+test {
+    useJUnitPlatform()
+}
 
 repositories {
     mavenCentral()
-    maven {
-        url  "https://jcenter.bintray.com"
-    }
+    jcenter()
 }
 
 dependencies {
@@ -49,6 +50,10 @@ dependencies {
     compile "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
     compile "org.glassfish.jaxb:jaxb-runtime:2.3.2"
     compile 'com.uchuhimo:konf:0.21.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testCompile "org.mockito:mockito-core:1.+"
 }
 
 compileKotlin {

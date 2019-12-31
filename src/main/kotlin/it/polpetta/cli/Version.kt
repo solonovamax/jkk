@@ -29,7 +29,7 @@ class Version: CliktCommand(help = "Prints information about the cli and the ser
     override fun run() {
         val jenkinsSession = Jenkins.retrieveSession()
 
-        if (jenkinsSession != null)
+        if (jenkinsSession != null && jenkinsSession.api().systemApi().systemInfo().jenkinsVersion() != "-1")
         {
             println("""
             Local:
