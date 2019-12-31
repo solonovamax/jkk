@@ -59,8 +59,5 @@ internal class VersionTest {
             Version: ${VersionInfo.NUMBER}
             Version name: ${VersionInfo.NAME}
             """.trimIndent(), outContent.toString().trimIndent())
-        assert(errContent.toString().isNotBlank()) {
-            "Expected error output but got\n${errContent.toString()}\ninstead"
-        }
     }
 }

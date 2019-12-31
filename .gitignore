@@ -29,3 +29,5 @@ build/
 jenkins_home/
 .jkkcred
 *.iml
+gradlew
+gradlew.bat
