@@ -42,9 +42,9 @@ class Login @Inject constructor(private val jenkinsSession: JenkinsSession) :
     override fun run() {
         val jenkins = jenkinsSession.with(url, username, password)
         val authConfig = Config { addSpec(Auth) }
-        val jenkinsVersion = jenkins.api().systemApi().systemInfo().jenkinsVersion()
+        val jenkinsVersion = jenkins.getVersion()
 
-        if (jenkinsVersion.split(".")[0].toShort() > 0) {
+        if (jenkinsVersion.isValid()) {
             println("Login succeed, found Jenkins $jenkinsVersion")
 
             authConfig[Auth.username] = username.orEmpty()

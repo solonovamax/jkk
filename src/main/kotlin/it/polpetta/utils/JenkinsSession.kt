@@ -18,17 +18,22 @@
 
 package it.polpetta.utils
 
-import com.cdancy.jenkins.rest.JenkinsClient
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
+import it.polpetta.api.jenkins.Api
 import it.polpetta.config.Auth
 import it.polpetta.config.Resources
 import java.io.FileNotFoundException
+import java.net.URI
 import java.nio.file.Path
 
 class JenkinsSession {
-    var session: JenkinsClient?
-
+/**
+ * Manage the current Jenkins session, retrieving URL, username and password at boot time from the local repository
+ * configuration. It gives the possibility to return an [Api] session.
+ * @see Api
+ */
+    val session: Api?
     init {
         var config: Config? = null
         if (Path.of(pwd(), Resources.JENKINS_AUTH_FILENAME).toFile().exists()) {
@@ -45,40 +50,26 @@ class JenkinsSession {
 
         session = if (config != null) {
             config.validateRequired()
-            JenkinsClient
-                .builder()
-                .credentials("${config[Auth.username]}:${config[Auth.password]}")
-                .endPoint(config[Auth.url])
-                .build()
+            it.polpetta.api.jenkins.adapters.offbytwojenkins.Api(
+                URI(config[Auth.url]),
+                config[Auth.username],
+                config[Auth.password]
+            )
         } else {
             null
         }
     }
 
     /**
-     * Generates a Jenkins API client from the configuration passed on the fly.
+     * Generates a Jenkins [Api] client from the configuration passed on the fly.
      * @param url The remote Jenkins instance
      * @param username The username of the user who wants to login in the server, if necessary
      * @param password The username's password, if required by the server
-     * @return A Jenkins API client
+     * @return A Jenkins [Api] client
+     * @see Api
      */
-    fun with(url: String = "http://localhost", username: String? = null, password: String? = null): JenkinsClient {
-        var credentials: String? = null
-        if (username != null && password != null) {
-            credentials = "${username}:${password}"
-        }
-
-        val jenkinsBuilder = JenkinsClient
-            .builder()
-            .endPoint(url)
-
-        if (credentials != null) {
-            jenkinsBuilder.credentials(credentials)
-        }
-        jenkinsBuilder.build().let {
-            session = it;
-            return it;
-        }
+    fun with(url: String = "http://localhost", username: String? = null, password: String? = null): Api {
+        return it.polpetta.api.jenkins.adapters.offbytwojenkins.Api(URI(url), username, password)
     }
 
     /**
@@ -88,8 +79,7 @@ class JenkinsSession {
      * @return the current Jenkins Client or the result of the argument lambda if the latter is null
      */
     //Not totally convinced this is a good idea but it could help to improve readability
-    inline fun retrieveSession(onNullSession: () -> JenkinsClient? = { null }) : JenkinsClient?
-    {
+    inline fun retrieveSession(onNullSession: () -> Api? = { null }): Api? {
         return session ?: onNullSession()
     }
 }
