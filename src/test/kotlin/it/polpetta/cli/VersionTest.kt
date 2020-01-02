@@ -18,7 +18,12 @@
 
 package it.polpetta.cli
 
+import com.cdancy.jenkins.rest.JenkinsClient
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.stub
 import it.polpetta.config.VersionInfo
+import it.polpetta.utils.JenkinsSession
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -29,8 +34,8 @@ import java.io.PrintStream
 
 
 internal class VersionTest {
-    // TODO We really need to use Guice in order to Inject our version of JenkinsCli (a simulator maybe?)
-    private val version = Version()
+    private val jenkinsSessionMock = mock<JenkinsSession>()
+    private val version = Version(jenkinsSessionMock)
     private val outContent = ByteArrayOutputStream()
     private val errContent = ByteArrayOutputStream()
     private val originalOut = System.out
@@ -50,10 +55,12 @@ internal class VersionTest {
 
     @Tag("it")
     @Test
-    fun `Version formatting should change based on logged in status`() {
-        // FIXME ok so this test is a little dumb. It won't work consistently until Guice is added to the project, and
-        //  we can use dependency injection to push stuff inside the classes we declare. As it is, the test will fail
-        //  if you're currently logged in a Jenkins server.
+    fun `Version formatting before login`()
+    {
+        //Example test, this is not really a command worth testing
+        jenkinsSessionMock.stub {
+            on { retrieveSession() } doReturn null
+        }
         version.run()
         assertEquals("""
             Version: ${VersionInfo.NUMBER}
