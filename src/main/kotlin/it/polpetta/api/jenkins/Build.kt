@@ -18,18 +18,22 @@
 
 package it.polpetta.api.jenkins
 
-import java.io.OutputStream
-import java.net.URL
+import it.polpetta.api.jenkins.Build.Status.BUILDING
+import kotlinx.coroutines.channels.ReceiveChannel
 
 /**
  * A build in Jenkins identifies a particular moment in time when a Job has been performed. A build can be completed or
  * currently running.
  * When completed, a build has a defined output status, that is:
  *  * Success - the build successfully finished, and exited with an expected status.
- *  * Failed - the build exited with an unexpected status.
- *  * Aborted - the build was stopped by a timeout reached or by user intervention.
+ *  * Failure - the build exited with an unexpected status.
+ *  * Aborted - the build was stopped by a timeout reached.
  *  * Unstable - the build completed successfully, but some check failed while the build ran: this can be due tests
  *  failing or coverage not being satisfied, for instance.
+ *  * Unknown - the build status is not known yet.
+ *  * Not Built - if the job has never been built.
+ *  * Cancelled - if the build has been stopped by the user.
+ *  * Prebuilding - if the build has been queue, or it has yet to start
  */
 interface Build {
     /**
@@ -39,15 +43,19 @@ interface Build {
     enum class Status {
         BUILDING,
         SUCCESS,
-        FAILED,
+        FAILURE,
         ABORTED,
-        UNSTABLE
+        UNSTABLE,
+        UNKNOWN,
+        NOT_BUILT,
+        CANCELLED,
+        REBUILDING
     }
 
     /**
      * @return the build id
      */
-    fun getId(): String
+    fun getId(): Int
 
     /**
      * @return the URL to the current build
@@ -65,10 +73,11 @@ interface Build {
     fun getDescription(): String
 
     /**
-     * @return the current log stream. Note that if the build is still going, the stream will be filled as long as new
-     * output comes out
+     * @param isFromStart get the log from the beginning of the build if true, else starting from the current moment
+     * @return the current log stream. Note that if the build is still going, the [ReceiveChannel] will be filled as
+     * long as new output comes out
      */
-    fun getLogStream(): OutputStream
+    fun getLogStream(isFromStart: Boolean = false): ReceiveChannel<String>
 
     /**
      * @return the current build status
@@ -84,5 +93,5 @@ interface Build {
      * Perform a desired action after the build passed from the state [Status.BUILDING] to another one.
      * @return the result got from the callback function
      */
-    fun <T>onComplete(action: (log: OutputStream, status: Status, id: String) -> T): T
+    suspend fun onComplete(action: (log: String, status: Status, id: Int) -> Unit)
 }

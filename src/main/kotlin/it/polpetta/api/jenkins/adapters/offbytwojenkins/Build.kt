@@ -18,40 +18,85 @@
 
 package it.polpetta.api.jenkins.adapters.offbytwojenkins
 
+import com.offbytwo.jenkins.helper.BuildConsoleStreamListener
+import com.offbytwo.jenkins.model.BuildResult
+import com.offbytwo.jenkins.model.BuildWithDetails
 import it.polpetta.api.jenkins.Build
-import java.io.OutputStream
-import java.net.URL
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.sendBlocking
 
-class Build: Build, com.offbytwo.jenkins.model.Build() {
-    override fun getId(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+class Build(private val build: BuildWithDetails) : Build {
+    override fun getId(): Int {
+        return build.number
     }
 
     override fun getUrl(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return build.url
     }
 
     override fun getTitle(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return build.displayName
     }
 
     override fun getDescription(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return build.description
     }
 
-    override fun getLogStream(): OutputStream {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    /**
+     * The method creates a runBlocking [CoroutineScope] which insides create a [ReceiveChannel] producer that
+     * subscribes to the underlying [BuildWithDetails.streamConsoleOutput] listener, and that it returns a reference to
+     * the receiver channel.
+     * @see Build.getLogStream for the method specification
+     */
+    @UseExperimental(ExperimentalCoroutinesApi::class)
+    override fun getLogStream(isFromStart: Boolean): ReceiveChannel<String> = runBlocking {
+        produce<String> {
+            if (isFromStart) {
+                send(build.consoleOutputText)
+            }
+            withContext(Dispatchers.IO) {
+                build.streamConsoleOutput(object : BuildConsoleStreamListener {
+                    override fun onData(newLogChunk: String?) {
+                        if (newLogChunk != null) {
+                            sendBlocking(newLogChunk.orEmpty())
+                        }
+                    }
+
+                    override fun finished() {
+                        close()
+                    }
+                }, 100, 500)
+            }
+        }
     }
 
     override fun getStatus(): Build.Status {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return when (build.result) {
+            BuildResult.ABORTED -> Build.Status.ABORTED
+            BuildResult.BUILDING -> Build.Status.BUILDING
+            BuildResult.CANCELLED -> Build.Status.CANCELLED
+            BuildResult.FAILURE -> Build.Status.FAILURE
+            BuildResult.NOT_BUILT -> Build.Status.NOT_BUILT
+            BuildResult.REBUILDING -> Build.Status.REBUILDING
+            BuildResult.SUCCESS -> Build.Status.SUCCESS
+            BuildResult.UNKNOWN -> Build.Status.UNKNOWN
+            BuildResult.UNSTABLE -> Build.Status.UNSTABLE
+            else -> {
+                Build.Status.UNKNOWN
+            }
+        }
     }
 
     override fun getDuration(): Long {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return build.duration
     }
 
-    override fun <T> onComplete(action: (log: OutputStream, status: Build.Status, id: String) -> T): T {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override suspend fun onComplete(action: (log: String, status: Build.Status, id: Int) -> Unit) {
+        while (getStatus() == Build.Status.REBUILDING || getStatus() == Build.Status.BUILDING) {
+            delay(100)
+        }
+        action(build.consoleOutputText, getStatus(), getId())
     }
 }

@@ -19,17 +19,15 @@
 package it.polpetta.api.jenkins.adapters.offbytwojenkins
 
 import com.offbytwo.jenkins.JenkinsServer
-import com.offbytwo.jenkins.client.JenkinsHttpClient
-import com.offbytwo.jenkins.client.util.UrlUtils
 import it.polpetta.api.jenkins.Api
 import java.net.URI
 
-class Api(private val uri: URI, username: String?, password: String?) : Api, JenkinsServer(uri, username, password) {
+class Api(private val uri: URI, username: String?, password: String?) : Api {
 
-    private val client: JenkinsHttpClient = JenkinsHttpClient(uri, username, password)
+    private val jenkinsServer = JenkinsServer(uri, username, password)
 
     override fun getVersion(): Version {
-        return Version(super.getVersion().literalVersion)
+        return Version(jenkinsServer.version.literalVersion)
     }
 
     override fun getEndpoint(): String {
@@ -38,15 +36,10 @@ class Api(private val uri: URI, username: String?, password: String?) : Api, Jen
 
     override fun getJob(id: String, folder: String?): Job? {
         return if (folder != null && folder.isEmpty() || folder == jenkinsRootFolder) {
-            val job = this.client.get(
-                UrlUtils.toJobBaseUrl(null, id),
-                Job::class.java
-            )
-            job.client = client
-
-            job
+            Job(jenkinsServer.getJob(id))
         } else {
-            null
+            // FIXME need to understand how FolderJob object works.
+            TODO("Folder support has not been implemented yet")
         }
     }
 }

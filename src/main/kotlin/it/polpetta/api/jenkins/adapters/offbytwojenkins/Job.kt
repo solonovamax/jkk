@@ -21,20 +21,33 @@ package it.polpetta.api.jenkins.adapters.offbytwojenkins
 import com.offbytwo.jenkins.model.JobWithDetails
 import it.polpetta.api.jenkins.Job
 
-class Job() : Job, JobWithDetails() {
-    override fun getBuild(id: String): Build {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+class Job(private val job: JobWithDetails) : Job {
+    override fun getName(): String {
+        return job.name
     }
 
-    override fun getBuilds(): List<Build> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getBuild(id: Int): Build {
+        return Build(job.getBuildByNumber(id).details())
+    }
+
+    override fun getBuilds(): Sequence<Build> {
+        return job.allBuilds.asSequence().mapNotNull {
+            Build(it.details())
+        }
     }
 
     override fun getLastBuild(): Build {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Build(job.lastBuild.details())
     }
 
-    override fun startBuild(title: String, description: String, parameters: Collection<Pair<String, String>>): Build {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun startBuild(title: String, description: String, parameters: Collection<Pair<String, String>>): Build? {
+        val launchedBuild = job.build(parameters.toMap())
+        val queueItem = job.queueItem
+        if (queueItem.url == launchedBuild.queueItemUrlPart) {
+            val buildWithDetails = job.getBuildByNumber(queueItem.id.toInt()).details()
+            buildWithDetails.updateDisplayNameAndDescription(title, description)
+            return Build(buildWithDetails)
+        }
+        return null
     }
 }

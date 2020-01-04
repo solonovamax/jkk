@@ -37,14 +37,15 @@ interface Job {
      * @return the build details
      * @see Build
      */
-    fun getBuild(id: String): Build
+    fun getBuild(id: Int): Build
 
     /**
-     * Get all the builds stored in this Job
+     * Get all the builds stored in this Job. The builds details are processed on-demand, meaning the whole data
+     * retrieval is done as lazily as possible.
      * @return all the builds currently stored in Jenkins
      * @see Build
      */
-    fun getBuilds(): Collection<Build>
+    fun getBuilds(): Sequence<Build>
 
     /**
      * @return the last build processed by this Job
@@ -53,7 +54,7 @@ interface Job {
 
     /**
      * Order Jenkins to launch a new build. The build can be personalized, giving a custom title or description.
-     * Additionally, a build can have parameters that can be defined. Parameters allow to change the behavoir of the
+     * Additionally, a build can have parameters that can be defined. Parameters allow to change the behavior of the
      * build itself e.g. customizing the name of a particular release or executing additional steps based on the kind of
      * deployment the user wants.
      * @param title custom title that will be displayed instead of the common Jenkins numbering sequence
@@ -63,5 +64,5 @@ interface Job {
      * @return the build just launched
      * @see Build
      */
-    fun startBuild(title: String = "", description: String = "", parameters: Collection<Pair<String, String>>): Build
+    fun startBuild(title: String = "", description: String = "", parameters: Collection<Pair<String, String>>): Build?
 }
