@@ -20,6 +20,7 @@ package it.polpetta.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.inject.Inject
@@ -35,12 +36,18 @@ import kotlin.system.exitProcess
 
 class Login @Inject constructor(private val jenkinsSession: JenkinsSession) :
     CliktCommand(help = "Login to the remote Jenkins instance") {
-    private val url: String by argument("server_url", "Jenkins server URL")
+    private val urlArgName: String = "server_url"
+    private val url: String? by argument(urlArgName, "Jenkins server URL").optional()
     private val username: String? by option("-u", "--username", help = "Jenkins username").prompt("Username")
     private val password: String? by option("-p", "--password", help = "Jenkins password/auth token").prompt("Password")
 
     override fun run() {
-        val jenkins = jenkinsSession.with(url, username, password)
+        var validUrl: String = url.orEmpty()
+        if (url == null || url.isNullOrBlank()) {
+            validUrl = "http://localhost/"
+            println("No $urlArgName provided, using default url $validUrl")
+        }
+        val jenkins = jenkinsSession.with(validUrl, username, password)
         val authConfig = Config { addSpec(Auth) }
         val jenkinsVersion = jenkins.getVersion()
 
@@ -49,7 +56,7 @@ class Login @Inject constructor(private val jenkinsSession: JenkinsSession) :
 
             authConfig[Auth.username] = username.orEmpty()
             authConfig[Auth.password] = password.orEmpty()
-            authConfig[Auth.url] = url
+            authConfig[Auth.url] = validUrl
 
             val saveFile = Path.of(pwd(), Resources.JENKINS_AUTH_FILENAME).toFile()
             if (saveFile.exists()) {

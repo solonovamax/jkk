@@ -33,7 +33,7 @@ class Status @Inject constructor(private val jenkinsSession: JenkinsSession) :
 
     override fun run() {
         val session = jenkinsSession.retrieveSession {
-            printErrln("ABORT: No Jenkins instance to connect to")
+            printErrln("No Jenkins instance to connect to")
             exitProcess(1)
         }!!
 

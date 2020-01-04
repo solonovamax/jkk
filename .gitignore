@@ -31,3 +31,4 @@ jenkins_home/
 *.iml
 gradlew
 gradlew.bat
+/jkk
