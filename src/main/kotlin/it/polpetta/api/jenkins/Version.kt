@@ -24,7 +24,7 @@ package it.polpetta.api.jenkins
 interface Version {
 
     /**
-     * @return whenever this particular Jenkins version is valid
+     * @return whether this particular Jenkins version is valid for the purposes of the implementation
      */
     fun isValid(): Boolean
 }
