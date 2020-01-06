@@ -27,8 +27,9 @@ class Version @Inject constructor(private val jenkinsSession: JenkinsSession) :
     CliktCommand(help = "Prints information about the cli and the server, if logged in") {
     override fun run() {
         val jenkinsSession = jenkinsSession.retrieveSession()
+        val version = jenkinsSession?.getVersion()
 
-        if (jenkinsSession != null && jenkinsSession.api().systemApi().systemInfo().jenkinsVersion() != "-1")
+        if (jenkinsSession != null && version?.isValid() == true)
         {
             println("""
             Local:
@@ -36,8 +37,8 @@ class Version @Inject constructor(private val jenkinsSession: JenkinsSession) :
             Version name: ${VersionInfo.NAME}
             
             Remote:
-            Version: ${jenkinsSession.api().systemApi().systemInfo().jenkinsVersion()}
-            Endpoint: ${jenkinsSession.endPoint()}
+            Version: $version
+            Endpoint: ${jenkinsSession.getEndpoint()}
             """.trimIndent())
         } else {
             println("""

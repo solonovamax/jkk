@@ -21,6 +21,7 @@ package it.polpetta.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.google.inject.Inject
+import it.polpetta.api.jenkins.Build
 import it.polpetta.utils.JenkinsSession
 import it.polpetta.utils.printErrln
 import kotlin.system.exitProcess
@@ -32,30 +33,28 @@ class Status @Inject constructor(private val jenkinsSession: JenkinsSession) :
 
     override fun run() {
         val session = jenkinsSession.retrieveSession {
-            printErrln("ABORT: No Jenkins instance to connect to")
+            printErrln("No Jenkins instance to connect to")
             exitProcess(1)
         }!!
 
-        val jobInfo = session.api().jobsApi().jobInfo(null, jobName)
-        val lastBuild = jobInfo.lastBuild()
-        val prettyIsBuilding = if(lastBuild.building()) {
+        val jobInfo = session.getJob(jobName)!!
+        val lastBuild = jobInfo.getLastBuild()
+        val prettyIsBuilding = if(lastBuild.getStatus() == Build.Status.BUILDING) {
             "building"
         } else {
             "completed"
         }
-        val description = lastBuild.description() ?: "no description available"
-        val title = lastBuild.displayName() ?: "no title available"
         println(
             """
-            Latest build on job ${jobInfo.displayName()}
-            Build number: ${lastBuild.number()}
-            Build url: ${lastBuild.url()}
+            Latest build on job ${jobInfo.getName()}
+            Build id: ${lastBuild.getId()}
+            Build url: ${lastBuild.getUrl()}
             Status: $prettyIsBuilding
-            Duration: ${lastBuild.duration()}
+            Duration: ${lastBuild.getDuration()}
 
-            Title: $title
+            Title: ${lastBuild.getTitle()}
             Description:
-            $description
+            ${lastBuild.getDescription()}
         """.trimIndent()
         )
     }
