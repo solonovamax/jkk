@@ -83,9 +83,7 @@ class Build(private val build: BuildWithDetails) : Build {
             BuildResult.SUCCESS -> Build.Status.SUCCESS
             BuildResult.UNKNOWN -> Build.Status.UNKNOWN
             BuildResult.UNSTABLE -> Build.Status.UNSTABLE
-            else -> {
-                Build.Status.UNKNOWN
-            }
+            else -> Build.Status.UNKNOWN
         }
     }
 
