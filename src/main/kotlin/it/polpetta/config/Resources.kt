@@ -19,7 +19,30 @@
 package it.polpetta.config
 
 object Resources {
-    const val JENKINS_AUTH_FILENAME: String = ".jkkcred"
+    /**
+     * Folder configuration
+     */
+    const val JKK_HOME_FOLDER: String = ".jkk"
+    /**
+     * Credentials file name
+     */
+    const val JKK_AUTH_FILE: String = "credentials"
+    /**
+     * Configuration file name
+     */
+    const val JKK_CONFIG_FILE: String = "config"
+    /**
+     * A list of supported Version Control Systems
+     */
+    enum class VCS {
+        GIT,
+        HG,
+        SVN
+    }
+
+    /**
+     * Fields for TOML entries
+     */
     object TOML {
         object Auth {
             const val USERNAME : String = "username"
@@ -31,6 +54,21 @@ object Resources {
             const val TOKEN : String = "token"
             const val URL : String = "url"
             const val ITEM : String = "token_auth"
+        }
+        object Config {
+            const val ITEM: String = "config"
+            const val ASSOCIATION: String = "association"
+            object Job {
+                const val ITEM: String = "job"
+                const val FOLDER: String = "folder"
+                const val NAME: String = "name"
+                const val FALLBACK: String = "fallback"
+            }
+            object Branch {
+                const val ITEM: String = "branch"
+                const val REMOTE: String = "remote"
+                const val LOCAL: String = "local"
+            }
         }
     }
 }

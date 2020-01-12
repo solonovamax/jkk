@@ -21,6 +21,7 @@ package it.polpetta.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.inject.Inject
@@ -28,9 +29,8 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml.toToml
 import it.polpetta.config.Auth
 import it.polpetta.config.Resources
-import it.polpetta.utils.JenkinsSession
-import it.polpetta.utils.printErrln
-import it.polpetta.utils.pwd
+import it.polpetta.utils.*
+import java.io.File
 import java.nio.file.Path
 import kotlin.system.exitProcess
 
@@ -38,6 +38,7 @@ class Login @Inject constructor(private val jenkinsSession: JenkinsSession) :
     CliktCommand(help = "Login to the remote Jenkins instance") {
     private val urlArgName: String = "server_url"
     private val url: String? by argument(urlArgName, "Jenkins server URL").optional()
+    private val global: Boolean by option(help = "Apply the config at global level").flag("g", default = false)
     private val username: String? by option("-u", "--username", help = "Jenkins username").prompt("Username")
     private val password: String? by option("-p", "--password", help = "Jenkins password/auth token").prompt("Password")
 
@@ -57,14 +58,7 @@ class Login @Inject constructor(private val jenkinsSession: JenkinsSession) :
             authConfig[Auth.username] = username.orEmpty()
             authConfig[Auth.password] = password.orEmpty()
             authConfig[Auth.url] = validUrl
-
-            val saveFile = Path.of(pwd(), Resources.JENKINS_AUTH_FILENAME).toFile()
-            if (saveFile.exists()) {
-                saveFile.delete()
-            } else {
-                saveFile.createNewFile()
-            }
-            authConfig.toToml.toFile(saveFile)
+            saveConfig(authConfig, Resources.JKK_AUTH_FILE, global)
             // TODO we should detect the current VCS used by the user and add the current credential files in the
             //  ignored files, in order to avoid accidentals commits
         } else {

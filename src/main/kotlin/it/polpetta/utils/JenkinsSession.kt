@@ -19,6 +19,7 @@
 package it.polpetta.utils
 
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.Spec
 import com.uchuhimo.konf.source.toml
 import it.polpetta.api.jenkins.Api
 import it.polpetta.config.Auth
@@ -26,6 +27,7 @@ import it.polpetta.config.Resources
 import java.io.FileNotFoundException
 import java.net.URI
 import java.nio.file.Path
+import java.util.*
 
 class JenkinsSession {
 /**
@@ -36,18 +38,13 @@ class JenkinsSession {
     val session: Api?
     init {
         var config: Config? = null
-        if (Path.of(pwd(), Resources.JENKINS_AUTH_FILENAME).toFile().exists()) {
-            try {
-                config = Config { addSpec(Auth) }.from.toml.file(
-                    Path.of(
-                        pwd(),
-                        Resources.JENKINS_AUTH_FILENAME
-                    ).toFile().path
-                )
-            } catch (e: FileNotFoundException) {
-            }
+        val localConfig = Path.of(prjHome(), Resources.JKK_HOME_FOLDER, Resources.JKK_AUTH_FILE).toFile()
+        val globalConfig = Path.of(home(), Resources.JKK_HOME_FOLDER, Resources.JKK_AUTH_FILE).toFile()
+        if (localConfig.exists()) {
+            config = retrieveConfig(localConfig.path, Resources.JKK_AUTH_FILE, setOf(Auth))
+        } else if (globalConfig.exists()) {
+            config = retrieveConfig(globalConfig.path, Resources.JKK_AUTH_FILE, setOf(Auth))
         }
-
         session = if (config != null) {
             config.validateRequired()
             it.polpetta.api.jenkins.adapters.offbytwojenkins.Api(
