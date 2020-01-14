@@ -3,11 +3,13 @@
 [![Build Status](https://travis-ci.org/Polpetta/jkk.svg?branch=master)](https://travis-ci.org/Polpetta/jkk)
 ![Discord](https://img.shields.io/discord/664379301667274766?color=blue&label=Discord)
 
-The aim of this project is to create a git-like tool to integrate in the development workflow of an everyday developer.
+The aim of this project is to create a git-like tool to be integrated in the development workflow of an everyday developer.
 
 We all know how frustrating can be leaving our beloved shell to check on a 2005-white-background Jenkins dashboard how
 build is going on. Sometimes, one would just like to know if the build for the last commit passed or not. Jkk wants to
 smooth this task by integrating the build information directly in the developer workflow.
+
+If you want to get in touch with the developers or if you have any questions you can find us in our [official Discord server](https://discord.gg/KkYr4Zb)!
 
 ## Installing
 ### From source
