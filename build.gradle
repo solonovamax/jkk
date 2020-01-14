@@ -21,7 +21,7 @@ plugins {
 }
 
 group 'it.polpetta'
-version '0.0.1'
+version '0.1'
 
 apply {
     plugin("kotlin")
@@ -67,4 +67,16 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'JKK: A git-like cli for Jenkins written in Kotlin',
+                   'Main-Class': 'it.polpetta.Cli'
+    }
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
