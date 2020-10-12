@@ -17,13 +17,16 @@ section="utils"
 priority="optional"
 sources=(
     "https://github.com/Polpetta/jkk/archive/master.tar.gz"
-    "https://downloads.gradle-dn.com/distributions/gradle-6.0.1-bin.zip"
+    "https://downloads.gradle-dn.com/distributions/gradle-6.6.1-bin.zip"
 )
 sources:archlinux=("https://github.com/Polpetta/jkk/archive/master.tar.gz")
 
 hashsums=(
     "skip"
-    "d2620b30787c22830bee1b5c6561877d"
+    "7873ed5287f47ca03549ab8dcb6dc877ac7f0e3d7b1eb12685161d10080910ac"
+)
+hashsums:archlinux=(
+    "skip"
 )
 
 depends:apt=(
@@ -34,7 +37,7 @@ makedepends:apt=(
 )
 
 depends:pacman=(
-    "jre11-openjdk-headless"
+    "java-runtime"
 )
 makedepends:pacman=(
     "gradle"
@@ -56,7 +59,7 @@ makedepends:zypper=(
 )
 
 build:archlinux() {
-    export JAVA_HOME=/usr/lib/jvm/java-11-openjdk/
+    export JAVA_HOME=/usr/lib/jvm/default/
     cd "${srcdir}/${pkgname}-master"
     gradle install
 }
@@ -64,19 +67,19 @@ build:archlinux() {
 build:fedora() {
     export JAVA_HOME=/usr/lib/jvm/java-11-openjdk/
     cd "${srcdir}/${pkgname}-master"
-    ../gradle-6.0.1/bin/gradle install
+    ../gradle-6.6.1/bin/gradle install
 }
 
 build:opensuse() {
     export JAVA_HOME=/usr/lib64/jvm/java-11-openjdk/
     cd "${srcdir}/${pkgname}-master"
-    ../gradle-6.0.1/bin/gradle install
+    ../gradle-6.6.1/bin/gradle install
 }
 
 build:ubuntu() {
     export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
     cd "${srcdir}/${pkgname}-master"
-    ../gradle-6.0.1/bin/gradle install
+    ../gradle-6.6.1/bin/gradle install
 }
 
 package() {

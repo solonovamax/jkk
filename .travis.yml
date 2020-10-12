@@ -3,7 +3,7 @@ dist: bionic
 language: java
 env:
   global:
-    - PACUR_TAG=0.5
+    - PACUR_TAG=0.6
 services:
   - docker
 jdk:
@@ -19,14 +19,16 @@ cache:
 before_install:
   - docker pull m0rf30/pacur-archlinux:$PACUR_TAG
   - docker pull m0rf30/pacur-fedora-31:$PACUR_TAG
-  - docker pull m0rf30/pacur-opensuse:$PACUR_TAG
-  - docker pull m0rf30/pacur-ubuntu-eoan:$PACUR_TAG
+  - docker pull m0rf30/pacur-opensuse-tumbleweed:$PACUR_TAG
+  - docker pull m0rf30/pacur-ubuntu-bionic:$PACUR_TAG
+  - docker pull m0rf30/pacur-ubuntu-focal:$PACUR_TAG
 script:
   - cd pacur
   - docker run -v $(pwd):/pacur -ti m0rf30/pacur-archlinux:$PACUR_TAG
   - docker run -v $(pwd):/pacur -ti m0rf30/pacur-fedora-31:$PACUR_TAG
-  - docker run -v $(pwd):/pacur -ti m0rf30/pacur-opensuse:$PACUR_TAG
-  - docker run -v $(pwd):/pacur -ti m0rf30/pacur-ubuntu-eoan:$PACUR_TAG
+  - docker run -v $(pwd):/pacur -ti m0rf30/pacur-opensuse-tumbleweed:$PACUR_TAG
+  - docker run -v $(pwd):/pacur -ti m0rf30/pacur-ubuntu-bionic:$PACUR_TAG
+  - docker run -v $(pwd):/pacur -ti m0rf30/pacur-ubuntu-focal:$PACUR_TAG
   - for i in $(ls); do sha256sum $i >> SHA256SUMS; done
 deploy:
   provider: releases
