@@ -50,9 +50,9 @@ class Build(private val build: BuildWithDetails) : Build {
      * the receiver channel.
      * @see Build.getLogStream for the method specification
      */
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getLogStream(isFromStart: Boolean): ReceiveChannel<String> = runBlocking {
-        produce<String> {
+        produce {
             if (isFromStart) {
                 send(build.consoleOutputText)
             }
@@ -60,7 +60,7 @@ class Build(private val build: BuildWithDetails) : Build {
                 build.streamConsoleOutput(object : BuildConsoleStreamListener {
                     override fun onData(newLogChunk: String?) {
                         if (newLogChunk != null) {
-                            sendBlocking(newLogChunk.orEmpty())
+                            sendBlocking(newLogChunk)
                         }
                     }
 

@@ -29,7 +29,7 @@ import java.io.FileNotFoundException
 import java.net.URI
 import java.nio.file.Path
 
-class JenkinsSession @Inject constructor(private val fileHandler : FileHandler) {
+class JenkinsSession @Inject constructor(fileHandler : FileHandler) {
 /**
  * Manage the current Jenkins session, retrieving URL, username and password at boot time from the local repository
  * configuration. It gives the possibility to return an [Api] session.
@@ -46,7 +46,7 @@ class JenkinsSession @Inject constructor(private val fileHandler : FileHandler) 
                         Resources.JENKINS_AUTH_FILENAME
                     ).toFile().path
                 )
-            } catch (e: FileNotFoundException) {
+            } catch (_: FileNotFoundException) {
             }
         }
 
