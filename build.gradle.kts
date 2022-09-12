@@ -24,7 +24,7 @@ import java.util.Date
 
 plugins {
     application
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.7.10"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -40,9 +40,9 @@ kotlin {
     target {
         compilations.configureEach {
             kotlinOptions {
-                jvmTarget = "1.8"
-                apiVersion = "1.3"
-                languageVersion = "1.3"
+                jvmTarget = "11"
+                apiVersion = "1.7"
+                languageVersion = "1.7"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
             }
         }
@@ -56,16 +56,16 @@ repositories {
 
 dependencies {
     kotlin("stdlib-jdk8")
-    implementation("com.github.ajalt:clikt:2.3.0")
+    implementation("com.github.ajalt:clikt:2.8.0")
     implementation("com.uchuhimo:konf:0.22.1")
-    implementation("dev.misfitlabs.kotlinguice4:kotlin-guice:1.4.1")
+    implementation("dev.misfitlabs.kotlinguice4:kotlin-guice:1.6.0")
     implementation("com.offbytwo.jenkins:jenkins-client:0.3.8")
     implementation("org.slf4j:slf4j-nop:1.7.30")
     
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
-    testImplementation("io.mockk:mockk:1.9.3")
-    testImplementation("org.assertj:assertj-core:3.15.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("org.assertj:assertj-core:3.23.1")
 }
 
 tasks {
